@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
 
     const result = analyzeText(text);
     return NextResponse.json(result);
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: 'Failed to analyze text' },
       { status: 500 }

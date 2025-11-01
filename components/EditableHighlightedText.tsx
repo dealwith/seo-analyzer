@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { WordAnalysis } from '@/lib/analyzer';
 
 interface EditableHighlightedTextProps {
@@ -20,15 +20,17 @@ export default function EditableHighlightedText({
 }: EditableHighlightedTextProps) {
   const [isEditing, setIsEditing] = useState(false);
   const editableRef = useRef<HTMLDivElement>(null);
-  const topWordSet = new Set(topWords.map(w => w.word));
 
-  useEffect(() => {
-    if (editableRef.current && !isEditing) {
-      editableRef.current.innerHTML = renderHighlightedHTML();
-    }
-  }, [text, topWords, colorMap, selectedWord]);
+  const escapeHtml = useCallback((unsafe: string): string => {
+    return unsafe
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }, []);
 
-  const renderHighlightedHTML = (): string => {
+  const renderHighlightedHTML = useCallback((): string => {
     const regex = /\b[a-z]+\b/gi;
     const parts: string[] = [];
     let lastIndex = 0;
@@ -36,6 +38,7 @@ export default function EditableHighlightedText({
 
     const textCopy = text;
     const regexCopy = new RegExp(regex.source, regex.flags);
+    const wordSet = new Set(topWords.map(w => w.word));
 
     while ((match = regexCopy.exec(textCopy)) !== null) {
       const word = match[0].toLowerCase();
@@ -46,7 +49,7 @@ export default function EditableHighlightedText({
         parts.push(escapeHtml(textCopy.substring(lastIndex, matchStart)));
       }
 
-      if (topWordSet.has(word)) {
+      if (wordSet.has(word)) {
         const backgroundColor = colorMap.get(word) || 'transparent';
         const isSelected = selectedWord === word;
         const className = `highlight ${isSelected ? 'selected' : ''}`;
@@ -66,16 +69,13 @@ export default function EditableHighlightedText({
     }
 
     return parts.join('');
-  };
+  }, [text, topWords, colorMap, selectedWord, escapeHtml]);
 
-  const escapeHtml = (unsafe: string): string => {
-    return unsafe
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
-  };
+  useEffect(() => {
+    if (editableRef.current && !isEditing) {
+      editableRef.current.innerHTML = renderHighlightedHTML();
+    }
+  }, [text, topWords, colorMap, selectedWord, isEditing, renderHighlightedHTML]);
 
   const handleInput = () => {
     if (editableRef.current) {
