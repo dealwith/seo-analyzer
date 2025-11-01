@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { AnalysisResult } from '@/lib/analyzer';
 import EditableHighlightedText from '@/components/EditableHighlightedText';
 import ResizablePanels from '@/components/ResizablePanels';
+import Logo from '@/components/Logo';
 import { generateDistinctColors } from '@/lib/colors';
 import { saveText, loadText, saveAnalysis, loadAnalysis, savePanelWidth, loadPanelWidth } from '@/lib/storage';
 import { useAutoSave } from '@/hooks/useAutoSave';
@@ -102,8 +103,13 @@ export default function Home() {
   return (
     <div className="container">
       <header>
-        <h1>SEO Keyword Analyzer</h1>
-        <p>Analyze your text to identify keyword density and combinations</p>
+        <div className="header-content">
+          <Logo size={56} className="logo" />
+          <div className="header-text">
+            <h1>SEO Keyword Analyzer</h1>
+            <p>Analyze your text to identify keyword density and combinations</p>
+          </div>
+        </div>
       </header>
 
       <ResizablePanels
@@ -289,6 +295,26 @@ export default function Home() {
           )
         }
       />
+
+      <footer className="app-footer">
+        <p>
+          SEO Keyword Analyzer © 2024 | Licensed under{' '}
+          <a
+            href="https://www.gnu.org/licenses/agpl-3.0.en.html"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            AGPL-3.0
+          </a>
+          {' '}or Commercial License
+        </p>
+        <p className="footer-notice">
+          Open source for individuals and small businesses. Commercial license required for corporations ($1M+ revenue).{' '}
+          <a href="https://github.com/yourusername/seo-analyzer" target="_blank" rel="noopener noreferrer">
+            View Source
+          </a>
+        </p>
+      </footer>
     </div>
   );
 }

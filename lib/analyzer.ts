@@ -1,3 +1,11 @@
+/**
+ * SEO Keyword Analyzer
+ * Copyright (C) 2024 SEO Analyzer Team
+ *
+ * Licensed under AGPL-3.0-or-Commercial
+ * See LICENSE file for details
+ */
+
 const STOP_WORDS = new Set([
   'a', 'an', 'and', 'are', 'as', 'at', 'be', 'by', 'for', 'from', 'has', 'he',
   'in', 'is', 'it', 'its', 'of', 'on', 'that', 'the', 'to', 'was', 'will',

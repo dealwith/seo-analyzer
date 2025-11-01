@@ -1,3 +1,11 @@
+/**
+ * SEO Keyword Analyzer
+ * Copyright (C) 2024 SEO Analyzer Team
+ *
+ * Licensed under AGPL-3.0-or-Commercial
+ * See LICENSE file for details
+ */
+
 import { AnalysisResult } from './analyzer';
 
 const STORAGE_KEYS = {

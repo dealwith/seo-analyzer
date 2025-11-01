@@ -1,7 +1,28 @@
 {
   "name": "seo-analyzer",
   "version": "0.1.0",
+  "description": "Analyze your text to identify keyword density and combinations for SEO optimization",
+  "author": "SEO Analyzer Team",
+  "license": "AGPL-3.0-or-Commercial",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/seo-analyzer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/seo-analyzer/issues"
+  },
+  "homepage": "https://github.com/yourusername/seo-analyzer#readme",
+  "keywords": [
+    "seo",
+    "keyword-analyzer",
+    "keyword-density",
+    "text-analysis",
+    "content-optimization",
+    "nextjs",
+    "react",
+    "typescript"
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",

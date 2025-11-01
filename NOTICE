@@ -1,0 +1,81 @@
+SEO Keyword Analyzer
+Copyright (C) 2024 SEO Analyzer Team
+
+This product is dual-licensed under:
+- GNU Affero General Public License v3.0 (AGPL-3.0) for open source use
+- Commercial License for commercial/corporate use
+
+================================================================================
+
+THIRD-PARTY COMPONENTS
+
+This software uses the following open source packages:
+
+Next.js
+- License: MIT
+- Copyright (c) 2024 Vercel, Inc.
+- https://github.com/vercel/next.js
+
+React
+- License: MIT
+- Copyright (c) Meta Platforms, Inc. and affiliates
+- https://github.com/facebook/react
+
+TypeScript
+- License: Apache-2.0
+- Copyright (c) Microsoft Corporation
+- https://github.com/microsoft/TypeScript
+
+Jest
+- License: MIT
+- Copyright (c) Meta Platforms, Inc. and affiliates
+- https://github.com/jestjs/jest
+
+Testing Library
+- License: MIT
+- Copyright (c) 2017 Kent C. Dodds
+- https://github.com/testing-library
+
+Husky
+- License: MIT
+- Copyright (c) 2021 typicode
+- https://github.com/typicode/husky
+
+lint-staged
+- License: MIT
+- Copyright (c) 2016 Andrey Okonetchnikov
+- https://github.com/okonet/lint-staged
+
+================================================================================
+
+For the complete list of dependencies and their licenses, see package.json
+and the node_modules directory.
+
+================================================================================
+
+ATTRIBUTION REQUIREMENTS
+
+If you distribute this software (modified or unmodified), you must:
+
+1. Include this NOTICE file
+2. Include the LICENSE file
+3. Preserve all copyright notices in source code
+4. State any changes made to the original code
+5. Provide a link to the original source code (if using AGPL-3.0)
+
+For web services using this software:
+- You must provide a link to the source code of your version
+- You must include license and attribution information in your UI
+
+================================================================================
+
+CONTACT
+
+For licensing questions or commercial licensing:
+[Your Contact Email]
+[Your Website]
+
+For bug reports and feature requests:
+https://github.com/yourusername/seo-analyzer/issues
+
+================================================================================

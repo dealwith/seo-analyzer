@@ -1,0 +1,67 @@
+DUAL LICENSE
+
+This project is available under two licenses:
+
+1. GNU Affero General Public License v3.0 (AGPL-3.0) - For open source use
+2. Commercial License - For commercial/corporate use
+
+================================================================================
+
+OPTION 1: GNU AFFERO GENERAL PUBLIC LICENSE Version 3 (AGPL-3.0)
+
+Copyright (C) 2024 SEO Analyzer
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+KEY REQUIREMENTS OF AGPL-3.0:
+- If you use this software to provide a service over a network, you MUST
+  make the complete source code available to users of that service
+- Any modifications must also be licensed under AGPL-3.0
+- You must preserve copyright notices and license information
+- You must state changes made to the code
+
+Full text: https://www.gnu.org/licenses/agpl-3.0.txt
+
+================================================================================
+
+OPTION 2: COMMERCIAL LICENSE
+
+For organizations that wish to use this software without the open-source
+requirements of AGPL-3.0, a commercial license is available.
+
+COMMERCIAL LICENSE IS REQUIRED IF:
+- You are a corporation with annual revenue exceeding $1,000,000 USD
+- You do not want to open-source your modifications
+- You want to use this software in proprietary products
+- You provide services using this software without publishing source code
+
+================================================================================
+
+CHOOSING YOUR LICENSE:
+
+You may use this software under AGPL-3.0 if:
+✓ You keep your modifications open source (AGPL-3.0)
+✓ You publish your source code if providing network services
+✓ You are an individual, small business, or non-profit
+✓ You comply with all AGPL-3.0 requirements
+
+You must obtain a commercial license if:
+✗ You are a large corporation (revenue > $1M/year)
+✗ You want to keep your modifications proprietary
+✗ You cannot comply with AGPL-3.0 source code requirements
+✗ You provide SaaS without publishing your source code
+
+================================================================================
+
+For questions about licensing, please contact: [Your Contact Email]
