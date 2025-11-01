@@ -3,7 +3,6 @@ import { AnalysisResult } from './analyzer';
 const STORAGE_KEYS = {
   TEXT: 'seo-analyzer-text',
   ANALYSIS: 'seo-analyzer-analysis',
-  SHOW_HIGHLIGHTED: 'seo-analyzer-show-highlighted',
   PANEL_WIDTH: 'seo-analyzer-panel-width',
 };
 
@@ -36,16 +35,6 @@ export function loadAnalysis(): AnalysisResult | null {
   } catch {
     return null;
   }
-}
-
-export function saveShowHighlighted(show: boolean): void {
-  if (typeof window === 'undefined') return;
-  localStorage.setItem(STORAGE_KEYS.SHOW_HIGHLIGHTED, String(show));
-}
-
-export function loadShowHighlighted(): boolean {
-  if (typeof window === 'undefined') return false;
-  return localStorage.getItem(STORAGE_KEYS.SHOW_HIGHLIGHTED) === 'true';
 }
 
 export function savePanelWidth(width: number): void {

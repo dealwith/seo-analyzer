@@ -224,6 +224,27 @@ tbody tr:hover {
   background: white;
 }
 
+.editable-highlighted-text {
+  flex: 1;
+  min-height: 400px;
+  padding: 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  line-height: 1.6;
+  background: white;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.editable-highlighted-text:focus {
+  border-color: #3498db;
+}
+
 .highlight {
   padding: 2px 0;
   border-radius: 3px;

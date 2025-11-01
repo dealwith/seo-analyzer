@@ -2,17 +2,17 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { AnalysisResult } from '@/lib/analyzer';
-import HighlightedText from '@/components/HighlightedText';
+import EditableHighlightedText from '@/components/EditableHighlightedText';
 import ResizablePanels from '@/components/ResizablePanels';
 import { generateDistinctColors } from '@/lib/colors';
-import { saveText, loadText, saveAnalysis, loadAnalysis, saveShowHighlighted, loadShowHighlighted, savePanelWidth, loadPanelWidth } from '@/lib/storage';
+import { saveText, loadText, saveAnalysis, loadAnalysis, savePanelWidth, loadPanelWidth } from '@/lib/storage';
+import { useAutoSave } from '@/hooks/useAutoSave';
 
 export default function Home() {
   const [text, setText] = useState('');
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [selectedWord, setSelectedWord] = useState<string | null>(null);
-  const [showHighlighted, setShowHighlighted] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [panelWidth, setPanelWidth] = useState<number | undefined>(undefined);
 
@@ -20,29 +20,19 @@ export default function Home() {
     setMounted(true);
     const savedText = loadText();
     const savedAnalysis = loadAnalysis();
-    const savedShowHighlighted = loadShowHighlighted();
     const savedPanelWidth = loadPanelWidth();
 
     if (savedText) setText(savedText);
     if (savedAnalysis) setAnalysis(savedAnalysis);
-    if (savedShowHighlighted) setShowHighlighted(savedShowHighlighted);
     if (savedPanelWidth !== null) setPanelWidth(savedPanelWidth);
   }, []);
 
-  useEffect(() => {
-    if (!mounted) return;
-    saveText(text);
-  }, [text, mounted]);
+  useAutoSave(text, saveText, 3000, mounted);
 
   useEffect(() => {
     if (!mounted) return;
     saveAnalysis(analysis);
   }, [analysis, mounted]);
-
-  useEffect(() => {
-    if (!mounted) return;
-    saveShowHighlighted(showHighlighted);
-  }, [showHighlighted, mounted]);
 
   const colorMap = useMemo(() => {
     if (!analysis) return new Map<string, string>();
@@ -63,7 +53,6 @@ export default function Home() {
 
     setLoading(true);
     setSelectedWord(null);
-    setShowHighlighted(false);
     try {
       const response = await fetch('/api/analyze', {
         method: 'POST',
@@ -79,7 +68,6 @@ export default function Home() {
 
       const result = await response.json();
       setAnalysis(result);
-      setShowHighlighted(true);
     } catch (error) {
       console.error('Error analyzing text:', error);
       alert('Failed to analyze text. Please try again.');
@@ -100,7 +88,6 @@ export default function Home() {
     if (confirm('Are you sure you want to clear all text and analysis?')) {
       setText('');
       setAnalysis(null);
-      setShowHighlighted(false);
       setSelectedWord(null);
     }
   };
@@ -127,13 +114,14 @@ export default function Home() {
             <label htmlFor="text-input">
               <strong>Enter Your Text:</strong>
             </label>
-            {showHighlighted && analysis ? (
-              <HighlightedText
+            {analysis ? (
+              <EditableHighlightedText
                 text={text}
                 topWords={analysis.wordAnalysis.slice(0, 20)}
                 colorMap={colorMap}
                 selectedWord={selectedWord}
                 onWordClick={handleWordClick}
+                onTextChange={setText}
               />
             ) : (
               <textarea
@@ -152,14 +140,6 @@ export default function Home() {
               >
                 {loading ? 'Analyzing...' : 'Analyze Text'}
               </button>
-              {showHighlighted && (
-                <button
-                  onClick={() => setShowHighlighted(false)}
-                  className="edit-btn"
-                >
-                  Edit Text
-                </button>
-              )}
               {text && (
                 <button
                   onClick={handleClear}
