@@ -221,6 +221,94 @@ tbody tr:hover {
   background: #f8f9fa;
 }
 
+.highlighted-text-container {
+  flex: 1;
+  padding: 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  line-height: 1.6;
+  background: white;
+}
+
+.highlight {
+  padding: 2px 0;
+  border-radius: 3px;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.highlight:hover {
+  opacity: 0.8;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.3);
+}
+
+.highlight.selected {
+  outline: 3px solid #3498db;
+  outline-offset: 2px;
+  font-weight: 600;
+}
+
+.edit-btn {
+  padding: 1rem 2rem;
+  background: #95a5a6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.edit-btn:hover {
+  background: #7f8c8d;
+}
+
+.button-group {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.button-group > button {
+  flex: 1;
+  min-width: 120px;
+}
+
+.clear-btn {
+  padding: 1rem 2rem;
+  background: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.clear-btn:hover {
+  background: #c0392b;
+}
+
+.keyword-row {
+  transition: background-color 0.2s;
+}
+
+.keyword-row.selected {
+  background: #e3f2fd !important;
+  outline: 2px solid #3498db;
+}
+
+.keyword-row:hover {
+  background: #f8f9fa;
+}
+
 @media (max-width: 1024px) {
   .content {
     flex-direction: column;

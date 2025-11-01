@@ -1,17 +1,65 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { AnalysisResult } from '@/lib/analyzer';
+import HighlightedText from '@/components/HighlightedText';
+import { generateDistinctColors } from '@/lib/colors';
+import { saveText, loadText, saveAnalysis, loadAnalysis, saveShowHighlighted, loadShowHighlighted } from '@/lib/storage';
 
 export default function Home() {
   const [text, setText] = useState('');
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [loading, setLoading] = useState(false);
+  const [selectedWord, setSelectedWord] = useState<string | null>(null);
+  const [showHighlighted, setShowHighlighted] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const savedText = loadText();
+    const savedAnalysis = loadAnalysis();
+    const savedShowHighlighted = loadShowHighlighted();
+
+    if (savedText) setText(savedText);
+    if (savedAnalysis) setAnalysis(savedAnalysis);
+    if (savedShowHighlighted) setShowHighlighted(savedShowHighlighted);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    saveText(text);
+  }, [text, mounted]);
+
+  useEffect(() => {
+    if (!mounted) return;
+    saveAnalysis(analysis);
+  }, [analysis, mounted]);
+
+  useEffect(() => {
+    if (!mounted) return;
+    saveShowHighlighted(showHighlighted);
+  }, [showHighlighted, mounted]);
+
+  const colorMap = useMemo(() => {
+    if (!analysis) return new Map<string, string>();
+
+    const top20Words = analysis.wordAnalysis.slice(0, 20);
+    const colors = generateDistinctColors(20);
+    const map = new Map<string, string>();
+
+    top20Words.forEach((item, index) => {
+      map.set(item.word, colors[index]);
+    });
+
+    return map;
+  }, [analysis]);
 
   const handleAnalyze = async () => {
     if (!text.trim()) return;
 
     setLoading(true);
+    setSelectedWord(null);
+    setShowHighlighted(false);
     try {
       const response = await fetch('/api/analyze', {
         method: 'POST',
@@ -27,11 +75,29 @@ export default function Home() {
 
       const result = await response.json();
       setAnalysis(result);
+      setShowHighlighted(true);
     } catch (error) {
       console.error('Error analyzing text:', error);
       alert('Failed to analyze text. Please try again.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleWordClick = (word: string) => {
+    setSelectedWord(selectedWord === word ? null : word);
+  };
+
+  const handleRowClick = (word: string) => {
+    setSelectedWord(selectedWord === word ? null : word);
+  };
+
+  const handleClear = () => {
+    if (confirm('Are you sure you want to clear all text and analysis?')) {
+      setText('');
+      setAnalysis(null);
+      setShowHighlighted(false);
+      setSelectedWord(null);
     }
   };
 
@@ -48,20 +114,48 @@ export default function Home() {
             <label htmlFor="text-input">
               <strong>Enter Your Text:</strong>
             </label>
-            <textarea
-              id="text-input"
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              placeholder="Paste your text here for SEO analysis..."
-              rows={20}
-            />
-            <button
-              onClick={handleAnalyze}
-              disabled={loading || !text.trim()}
-              className="analyze-btn"
-            >
-              {loading ? 'Analyzing...' : 'Analyze Text'}
-            </button>
+            {showHighlighted && analysis ? (
+              <HighlightedText
+                text={text}
+                topWords={analysis.wordAnalysis.slice(0, 20)}
+                colorMap={colorMap}
+                selectedWord={selectedWord}
+                onWordClick={handleWordClick}
+              />
+            ) : (
+              <textarea
+                id="text-input"
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                placeholder="Paste your text here for SEO analysis..."
+                rows={20}
+              />
+            )}
+            <div className="button-group">
+              <button
+                onClick={handleAnalyze}
+                disabled={loading || !text.trim()}
+                className="analyze-btn"
+              >
+                {loading ? 'Analyzing...' : 'Analyze Text'}
+              </button>
+              {showHighlighted && (
+                <button
+                  onClick={() => setShowHighlighted(false)}
+                  className="edit-btn"
+                >
+                  Edit Text
+                </button>
+              )}
+              {text && (
+                <button
+                  onClick={handleClear}
+                  className="clear-btn"
+                >
+                  Clear All
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
@@ -100,9 +194,29 @@ export default function Home() {
                     </thead>
                     <tbody>
                       {analysis.wordAnalysis.slice(0, 20).map((item, index) => (
-                        <tr key={item.word}>
+                        <tr
+                          key={item.word}
+                          className={`keyword-row ${selectedWord === item.word ? 'selected' : ''}`}
+                          onClick={() => handleRowClick(item.word)}
+                          style={{ cursor: 'pointer' }}
+                        >
                           <td>{index + 1}</td>
-                          <td>{item.word}</td>
+                          <td>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                              <span
+                                className="color-indicator"
+                                style={{
+                                  backgroundColor: colorMap.get(item.word),
+                                  width: '20px',
+                                  height: '20px',
+                                  borderRadius: '4px',
+                                  display: 'inline-block',
+                                  border: '1px solid #ddd',
+                                }}
+                              />
+                              {item.word}
+                            </div>
+                          </td>
                           <td>{item.count}</td>
                           <td>{item.percentage.toFixed(2)}%</td>
                         </tr>
