@@ -4,6 +4,7 @@ const STORAGE_KEYS = {
   TEXT: 'seo-analyzer-text',
   ANALYSIS: 'seo-analyzer-analysis',
   SHOW_HIGHLIGHTED: 'seo-analyzer-show-highlighted',
+  PANEL_WIDTH: 'seo-analyzer-panel-width',
 };
 
 export function saveText(text: string): void {
@@ -45,6 +46,19 @@ export function saveShowHighlighted(show: boolean): void {
 export function loadShowHighlighted(): boolean {
   if (typeof window === 'undefined') return false;
   return localStorage.getItem(STORAGE_KEYS.SHOW_HIGHLIGHTED) === 'true';
+}
+
+export function savePanelWidth(width: number): void {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(STORAGE_KEYS.PANEL_WIDTH, String(width));
+}
+
+export function loadPanelWidth(): number | null {
+  if (typeof window === 'undefined') return null;
+  const stored = localStorage.getItem(STORAGE_KEYS.PANEL_WIDTH);
+  if (!stored) return null;
+  const width = parseFloat(stored);
+  return isNaN(width) ? null : width;
 }
 
 export function clearStorage(): void {

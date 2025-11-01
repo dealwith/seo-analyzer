@@ -11,7 +11,11 @@ A Next.js web application for analyzing text to identify keyword density and com
   - Each top 20 keyword is highlighted with a unique color
   - Click on any keyword in the text or table to emphasize all instances
   - Color indicators next to each keyword for easy identification
-- **Persistent Storage**: Text and analysis saved in localStorage (survives page reloads)
+- **Resizable Panels**:
+  - Drag the divider between text and analytics to adjust panel sizes
+  - Minimum width: 20% for each panel
+  - Panel sizes saved in localStorage
+- **Persistent Storage**: Text, analysis, and panel sizes saved in localStorage (survives page reloads)
 - **Clean Interface**: Split-panel design with text input on left, analytics on right
 - **Responsive Design**: Works seamlessly on desktop and mobile devices
 

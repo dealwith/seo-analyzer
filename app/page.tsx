@@ -3,8 +3,9 @@
 import { useState, useMemo, useEffect } from 'react';
 import { AnalysisResult } from '@/lib/analyzer';
 import HighlightedText from '@/components/HighlightedText';
+import ResizablePanels from '@/components/ResizablePanels';
 import { generateDistinctColors } from '@/lib/colors';
-import { saveText, loadText, saveAnalysis, loadAnalysis, saveShowHighlighted, loadShowHighlighted } from '@/lib/storage';
+import { saveText, loadText, saveAnalysis, loadAnalysis, saveShowHighlighted, loadShowHighlighted, savePanelWidth, loadPanelWidth } from '@/lib/storage';
 
 export default function Home() {
   const [text, setText] = useState('');
@@ -13,16 +14,19 @@ export default function Home() {
   const [selectedWord, setSelectedWord] = useState<string | null>(null);
   const [showHighlighted, setShowHighlighted] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [panelWidth, setPanelWidth] = useState<number | undefined>(undefined);
 
   useEffect(() => {
     setMounted(true);
     const savedText = loadText();
     const savedAnalysis = loadAnalysis();
     const savedShowHighlighted = loadShowHighlighted();
+    const savedPanelWidth = loadPanelWidth();
 
     if (savedText) setText(savedText);
     if (savedAnalysis) setAnalysis(savedAnalysis);
     if (savedShowHighlighted) setShowHighlighted(savedShowHighlighted);
+    if (savedPanelWidth !== null) setPanelWidth(savedPanelWidth);
   }, []);
 
   useEffect(() => {
@@ -101,6 +105,13 @@ export default function Home() {
     }
   };
 
+  const handlePanelWidthChange = (width: number) => {
+    setPanelWidth(width);
+    if (mounted) {
+      savePanelWidth(width);
+    }
+  };
+
   return (
     <div className="container">
       <header>
@@ -108,8 +119,10 @@ export default function Home() {
         <p>Analyze your text to identify keyword density and combinations</p>
       </header>
 
-      <div className="content">
-        <div className="left-panel">
+      <ResizablePanels
+        savedWidth={panelWidth}
+        onWidthChange={handlePanelWidthChange}
+        leftPanel={
           <div className="input-section">
             <label htmlFor="text-input">
               <strong>Enter Your Text:</strong>
@@ -157,10 +170,9 @@ export default function Home() {
               )}
             </div>
           </div>
-        </div>
-
-        <div className="right-panel">
-          {analysis ? (
+        }
+        rightPanel={
+          analysis ? (
             <div className="analysis-results">
               <div className="stats-section">
                 <h2>Statistics</h2>
@@ -294,9 +306,9 @@ export default function Home() {
               </svg>
               <p>Enter text on the left and click "Analyze Text" to see results</p>
             </div>
-          )}
-        </div>
-      </div>
+          )
+        }
+      />
     </div>
   );
 }
