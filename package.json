@@ -7,12 +7,12 @@
   "private": true,
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/seo-analyzer.git"
+    "url": "https://github.com/dealwith/seo-analyzer.git"
   },
   "bugs": {
-    "url": "https://github.com/yourusername/seo-analyzer/issues"
+    "url": "https://github.com/dealwith/seo-analyzer/issues"
   },
-  "homepage": "https://github.com/yourusername/seo-analyzer#readme",
+  "homepage": "https://github.com/dealwith/seo-analyzer#readme",
   "keywords": [
     "seo",
     "keyword-analyzer",

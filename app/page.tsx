@@ -310,7 +310,7 @@ export default function Home() {
         </p>
         <p className="footer-notice">
           Open source for individuals and small businesses. Commercial license required for corporations ($1M+ revenue).{' '}
-          <a href="https://github.com/yourusername/seo-analyzer" target="_blank" rel="noopener noreferrer">
+          <a href="https://github.com/dealwith/seo-analyzer" target="_blank" rel="noopener noreferrer">
             View Source
           </a>
         </p>
