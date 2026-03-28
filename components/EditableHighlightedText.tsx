@@ -103,6 +103,14 @@ export default function EditableHighlightedText({
     setIsEditing(false);
   };
 
+  const handleCopy = (e: React.ClipboardEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const selection = window.getSelection();
+    if (selection && selection.toString()) {
+      e.clipboardData.setData('text/plain', selection.toString());
+    }
+  };
+
   return (
     <div
       ref={editableRef}
@@ -113,6 +121,7 @@ export default function EditableHighlightedText({
       onClick={handleClick}
       onFocus={handleFocus}
       onBlur={handleBlur}
+      onCopy={handleCopy}
       style={{
         minHeight: '400px',
         padding: '12px',
