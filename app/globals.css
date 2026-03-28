@@ -60,6 +60,98 @@ header p {
   line-height: 1.4;
 }
 
+.tabs-bar {
+  background: #34495e;
+  padding: 0.5rem 1rem 0;
+  display: flex;
+  align-items: flex-end;
+}
+
+.tabs-list {
+  display: flex;
+  gap: 2px;
+  align-items: flex-end;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.tab-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #2c3e50;
+  color: #95a5a6;
+  border: none;
+  border-radius: 6px 6px 0 0;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  white-space: nowrap;
+  max-width: 180px;
+}
+
+.tab-button:hover {
+  background: #3d566e;
+  color: #ecf0f1;
+}
+
+.tab-button.active {
+  background: #f5f5f5;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.tab-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tab-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #3498db;
+  flex-shrink: 0;
+}
+
+.tab-button.active .tab-dot {
+  background: #27ae60;
+}
+
+.tab-close {
+  font-size: 1.1rem;
+  line-height: 1;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+  flex-shrink: 0;
+  padding: 0 2px;
+}
+
+.tab-close:hover {
+  opacity: 1;
+}
+
+.tab-add {
+  padding: 0.5rem 0.75rem;
+  background: transparent;
+  color: #95a5a6;
+  border: 1px dashed #5d7a94;
+  border-radius: 6px 6px 0 0;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  line-height: 1;
+}
+
+.tab-add:hover {
+  background: #3d566e;
+  color: #ecf0f1;
+  border-color: #ecf0f1;
+}
+
 .resizable-container {
   padding: 1rem;
   max-width: 100%;
@@ -412,6 +504,16 @@ tbody tr:hover {
 }
 
 @media (max-width: 640px) {
+  .tabs-bar {
+    padding: 0.4rem 0.5rem 0;
+  }
+
+  .tab-button {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
+    max-width: 140px;
+  }
+
   header {
     padding: 1.5rem 1rem;
   }
