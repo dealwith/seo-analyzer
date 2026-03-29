@@ -5,7 +5,12 @@ import {
   loadAnalysis,
   savePanelWidth,
   loadPanelWidth,
-  clearStorage
+  clearStorage,
+  saveTabs,
+  loadTabs,
+  saveActiveTab,
+  loadActiveTab,
+  TabData
 } from '@/lib/storage';
 import { AnalysisResult } from '@/lib/analyzer';
 
@@ -112,6 +117,38 @@ describe('storage', () => {
     it('should return null for invalid values', () => {
       mockLocalStorage.setItem('seo-analyzer-panel-width', 'invalid');
       expect(loadPanelWidth()).toBeNull();
+    });
+  });
+
+  describe('tabs storage', () => {
+    const mockTabs: TabData[] = [
+      { id: 'tab-1', label: 'Text 1', text: 'Hello', analysis: null },
+      { id: 'tab-2', label: 'Text 2', text: 'World', analysis: null },
+    ];
+
+    it('should save and load tabs', () => {
+      saveTabs(mockTabs);
+      expect(loadTabs()).toEqual(mockTabs);
+    });
+
+    it('should return null when no tabs are stored', () => {
+      expect(loadTabs()).toBeNull();
+    });
+
+    it('should handle corrupted JSON gracefully', () => {
+      mockLocalStorage.setItem('seo-analyzer-tabs', 'invalid json');
+      expect(loadTabs()).toBeNull();
+    });
+  });
+
+  describe('activeTab storage', () => {
+    it('should save and load active tab', () => {
+      saveActiveTab('tab-1');
+      expect(loadActiveTab()).toBe('tab-1');
+    });
+
+    it('should return null when no active tab is stored', () => {
+      expect(loadActiveTab()).toBeNull();
     });
   });
 

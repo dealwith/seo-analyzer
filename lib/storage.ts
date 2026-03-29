@@ -12,7 +12,16 @@ const STORAGE_KEYS = {
   TEXT: 'seo-analyzer-text',
   ANALYSIS: 'seo-analyzer-analysis',
   PANEL_WIDTH: 'seo-analyzer-panel-width',
+  TABS: 'seo-analyzer-tabs',
+  ACTIVE_TAB: 'seo-analyzer-active-tab',
 };
+
+export interface TabData {
+  id: string;
+  label: string;
+  text: string;
+  analysis: AnalysisResult | null;
+}
 
 export function saveText(text: string): void {
   if (typeof window === 'undefined') return;
@@ -56,6 +65,32 @@ export function loadPanelWidth(): number | null {
   if (!stored) return null;
   const width = parseFloat(stored);
   return isNaN(width) ? null : width;
+}
+
+export function saveTabs(tabs: TabData[]): void {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(STORAGE_KEYS.TABS, JSON.stringify(tabs));
+}
+
+export function loadTabs(): TabData[] | null {
+  if (typeof window === 'undefined') return null;
+  const stored = localStorage.getItem(STORAGE_KEYS.TABS);
+  if (!stored) return null;
+  try {
+    return JSON.parse(stored);
+  } catch {
+    return null;
+  }
+}
+
+export function saveActiveTab(tabId: string): void {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(STORAGE_KEYS.ACTIVE_TAB, tabId);
+}
+
+export function loadActiveTab(): string | null {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem(STORAGE_KEYS.ACTIVE_TAB);
 }
 
 export function clearStorage(): void {

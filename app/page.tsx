@@ -1,39 +1,109 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { AnalysisResult } from '@/lib/analyzer';
 import EditableHighlightedText from '@/components/EditableHighlightedText';
 import ResizablePanels from '@/components/ResizablePanels';
 import Logo from '@/components/Logo';
 import { generateDistinctColors } from '@/lib/colors';
-import { saveText, loadText, saveAnalysis, loadAnalysis, savePanelWidth, loadPanelWidth } from '@/lib/storage';
-import { useAutoSave } from '@/hooks/useAutoSave';
+import {
+  savePanelWidth,
+  loadPanelWidth,
+  saveTabs,
+  loadTabs,
+  saveActiveTab,
+  loadActiveTab,
+  loadText,
+  loadAnalysis,
+  TabData,
+} from '@/lib/storage';
+
+const MAX_TABS = 3;
+
+function createTab(index: number): TabData {
+  return {
+    id: `tab-${Date.now()}-${index}`,
+    label: `Text ${index}`,
+    text: '',
+    analysis: null,
+  };
+}
 
 export default function Home() {
-  const [text, setText] = useState('');
-  const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
+  const [tabs, setTabs] = useState<TabData[]>(() => [createTab(1)]);
+  const [activeTabId, setActiveTabId] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [selectedWord, setSelectedWord] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
   const [panelWidth, setPanelWidth] = useState<number | undefined>(undefined);
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Load saved state on mount
   useEffect(() => {
     setMounted(true);
-    const savedText = loadText();
-    const savedAnalysis = loadAnalysis();
     const savedPanelWidth = loadPanelWidth();
-
-    if (savedText) setText(savedText);
-    if (savedAnalysis) setAnalysis(savedAnalysis);
     if (savedPanelWidth !== null) setPanelWidth(savedPanelWidth);
+
+    const savedTabs = loadTabs();
+    const savedActiveTab = loadActiveTab();
+
+    if (savedTabs && savedTabs.length > 0) {
+      setTabs(savedTabs);
+      setActiveTabId(savedActiveTab && savedTabs.some(t => t.id === savedActiveTab)
+        ? savedActiveTab
+        : savedTabs[0].id
+      );
+    } else {
+      // Migrate from old single-text storage
+      const oldText = loadText();
+      const oldAnalysis = loadAnalysis();
+      const initialTab = createTab(1);
+      if (oldText) initialTab.text = oldText;
+      if (oldAnalysis) initialTab.analysis = oldAnalysis;
+      setTabs([initialTab]);
+      setActiveTabId(initialTab.id);
+    }
   }, []);
 
-  useAutoSave(text, saveText, 3000, mounted);
+  // Debounced save of tabs
+  const debouncedSaveTabs = useCallback((tabsToSave: TabData[]) => {
+    if (!mounted) return;
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+    saveTimeoutRef.current = setTimeout(() => {
+      saveTabs(tabsToSave);
+    }, 3000);
+  }, [mounted]);
 
+  // Save tabs when they change (debounced)
   useEffect(() => {
     if (!mounted) return;
-    saveAnalysis(analysis);
-  }, [analysis, mounted]);
+    debouncedSaveTabs(tabs);
+  }, [tabs, debouncedSaveTabs, mounted]);
+
+  // Save active tab immediately
+  useEffect(() => {
+    if (mounted && activeTabId) {
+      saveActiveTab(activeTabId);
+    }
+  }, [activeTabId, mounted]);
+
+  const activeTab = tabs.find(t => t.id === activeTabId) || tabs[0];
+  const text = activeTab?.text || '';
+  const analysis = activeTab?.analysis || null;
+
+  const updateActiveTab = useCallback((updates: Partial<TabData>) => {
+    setTabs(prev => prev.map(tab =>
+      tab.id === activeTabId ? { ...tab, ...updates } : tab
+    ));
+  }, [activeTabId]);
+
+  const setText = useCallback((newText: string) => {
+    updateActiveTab({ text: newText });
+  }, [updateActiveTab]);
+
+  const setAnalysis = useCallback((newAnalysis: AnalysisResult | null) => {
+    updateActiveTab({ analysis: newAnalysis });
+  }, [updateActiveTab]);
 
   const colorMap = useMemo(() => {
     if (!analysis) return new Map<string, string>();
@@ -69,6 +139,13 @@ export default function Home() {
 
       const result = await response.json();
       setAnalysis(result);
+      // Force immediate save after analysis
+      if (mounted) {
+        const updatedTabs = tabs.map(tab =>
+          tab.id === activeTabId ? { ...tab, analysis: result } : tab
+        );
+        saveTabs(updatedTabs);
+      }
     } catch (error) {
       console.error('Error analyzing text:', error);
       alert('Failed to analyze text. Please try again.');
@@ -87,8 +164,7 @@ export default function Home() {
 
   const handleClear = () => {
     if (confirm('Are you sure you want to clear all text and analysis?')) {
-      setText('');
-      setAnalysis(null);
+      updateActiveTab({ text: '', analysis: null });
       setSelectedWord(null);
     }
   };
@@ -98,6 +174,35 @@ export default function Home() {
     if (mounted) {
       savePanelWidth(width);
     }
+  };
+
+  const handleAddTab = () => {
+    if (tabs.length >= MAX_TABS) return;
+    const newTab = createTab(tabs.length + 1);
+    setTabs(prev => [...prev, newTab]);
+    setActiveTabId(newTab.id);
+    setSelectedWord(null);
+  };
+
+  const handleCloseTab = (tabId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (tabs.length <= 1) return;
+
+    const tabIndex = tabs.findIndex(t => t.id === tabId);
+    const newTabs = tabs.filter(t => t.id !== tabId);
+    setTabs(newTabs);
+
+    if (activeTabId === tabId) {
+      const newIndex = Math.min(tabIndex, newTabs.length - 1);
+      setActiveTabId(newTabs[newIndex].id);
+    }
+    setSelectedWord(null);
+  };
+
+  const handleSwitchTab = (tabId: string) => {
+    if (tabId === activeTabId) return;
+    setActiveTabId(tabId);
+    setSelectedWord(null);
   };
 
   return (
@@ -111,6 +216,40 @@ export default function Home() {
           </div>
         </div>
       </header>
+
+      <div className="tabs-bar">
+        <div className="tabs-list">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              className={`tab-button ${tab.id === activeTabId ? 'active' : ''}`}
+              onClick={() => handleSwitchTab(tab.id)}
+              title={tab.label}
+            >
+              <span className="tab-label">{tab.label}</span>
+              {tab.analysis && <span className="tab-dot" />}
+              {tabs.length > 1 && (
+                <span
+                  className="tab-close"
+                  onClick={(e) => handleCloseTab(tab.id, e)}
+                  title="Close tab"
+                >
+                  &times;
+                </span>
+              )}
+            </button>
+          ))}
+          {tabs.length < MAX_TABS && (
+            <button
+              className="tab-add"
+              onClick={handleAddTab}
+              title="Open new tab (max 3)"
+            >
+              +
+            </button>
+          )}
+        </div>
+      </div>
 
       <ResizablePanels
         savedWidth={panelWidth}
