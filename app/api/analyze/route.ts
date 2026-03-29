@@ -3,7 +3,7 @@ import { analyzeText } from '@/lib/analyzer';
 
 export async function POST(request: NextRequest) {
   try {
-    const { text } = await request.json();
+    const { text, filterStopWords, customStopWords } = await request.json();
 
     if (!text || typeof text !== 'string') {
       return NextResponse.json(
@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const result = analyzeText(text);
+    const result = analyzeText(text, { filterStopWords, customStopWords });
     return NextResponse.json(result);
   } catch {
     return NextResponse.json(

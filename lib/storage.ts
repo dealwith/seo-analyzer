@@ -14,6 +14,8 @@ const STORAGE_KEYS = {
   PANEL_WIDTH: 'seo-analyzer-panel-width',
   TABS: 'seo-analyzer-tabs',
   ACTIVE_TAB: 'seo-analyzer-active-tab',
+  FILTER_STOP_WORDS: 'seo-analyzer-filter-stop-words',
+  CUSTOM_STOP_WORDS: 'seo-analyzer-custom-stop-words',
 };
 
 export interface TabData {
@@ -91,6 +93,38 @@ export function saveActiveTab(tabId: string): void {
 export function loadActiveTab(): string | null {
   if (typeof window === 'undefined') return null;
   return localStorage.getItem(STORAGE_KEYS.ACTIVE_TAB);
+}
+
+export function saveFilterStopWords(enabled: boolean): void {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(STORAGE_KEYS.FILTER_STOP_WORDS, JSON.stringify(enabled));
+}
+
+export function loadFilterStopWords(): boolean {
+  if (typeof window === 'undefined') return true;
+  const stored = localStorage.getItem(STORAGE_KEYS.FILTER_STOP_WORDS);
+  if (!stored) return true;
+  try {
+    return JSON.parse(stored);
+  } catch {
+    return true;
+  }
+}
+
+export function saveCustomStopWords(words: string[]): void {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(STORAGE_KEYS.CUSTOM_STOP_WORDS, JSON.stringify(words));
+}
+
+export function loadCustomStopWords(): string[] | null {
+  if (typeof window === 'undefined') return null;
+  const stored = localStorage.getItem(STORAGE_KEYS.CUSTOM_STOP_WORDS);
+  if (!stored) return null;
+  try {
+    return JSON.parse(stored);
+  } catch {
+    return null;
+  }
 }
 
 export function clearStorage(): void {

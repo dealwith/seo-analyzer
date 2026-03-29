@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
-import { AnalysisResult } from '@/lib/analyzer';
+import { AnalysisResult, DEFAULT_STOP_WORDS } from '@/lib/analyzer';
 import EditableHighlightedText from '@/components/EditableHighlightedText';
 import ResizablePanels from '@/components/ResizablePanels';
+import ServiceWordsPanel from '@/components/ServiceWordsPanel';
 import Logo from '@/components/Logo';
 import { generateDistinctColors } from '@/lib/colors';
 import {
@@ -15,6 +16,10 @@ import {
   loadActiveTab,
   loadText,
   loadAnalysis,
+  saveFilterStopWords,
+  loadFilterStopWords,
+  saveCustomStopWords,
+  loadCustomStopWords,
   TabData,
 } from '@/lib/storage';
 
@@ -36,6 +41,8 @@ export default function Home() {
   const [selectedWord, setSelectedWord] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
   const [panelWidth, setPanelWidth] = useState<number | undefined>(undefined);
+  const [filterStopWords, setFilterStopWords] = useState(true);
+  const [customStopWords, setCustomStopWords] = useState<string[]>([...DEFAULT_STOP_WORDS]);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Load saved state on mount
@@ -43,6 +50,11 @@ export default function Home() {
     setMounted(true);
     const savedPanelWidth = loadPanelWidth();
     if (savedPanelWidth !== null) setPanelWidth(savedPanelWidth);
+
+    const savedFilter = loadFilterStopWords();
+    setFilterStopWords(savedFilter);
+    const savedCustomWords = loadCustomStopWords();
+    if (savedCustomWords) setCustomStopWords(savedCustomWords);
 
     const savedTabs = loadTabs();
     const savedActiveTab = loadActiveTab();
@@ -130,7 +142,7 @@ export default function Home() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({ text, filterStopWords, customStopWords }),
       });
 
       if (!response.ok) {
@@ -168,6 +180,16 @@ export default function Home() {
       setSelectedWord(null);
     }
   };
+
+  const handleFilterToggle = useCallback((enabled: boolean) => {
+    setFilterStopWords(enabled);
+    if (mounted) saveFilterStopWords(enabled);
+  }, [mounted]);
+
+  const handleCustomStopWordsChange = useCallback((words: string[]) => {
+    setCustomStopWords(words);
+    if (mounted) saveCustomStopWords(words);
+  }, [mounted]);
 
   const handlePanelWidthChange = (width: number) => {
     setPanelWidth(width);
@@ -259,6 +281,12 @@ export default function Home() {
             <label htmlFor="text-input">
               <strong>Enter Your Text:</strong>
             </label>
+            <ServiceWordsPanel
+              filterEnabled={filterStopWords}
+              onFilterToggle={handleFilterToggle}
+              customStopWords={customStopWords}
+              onCustomStopWordsChange={handleCustomStopWordsChange}
+            />
             {analysis ? (
               <EditableHighlightedText
                 text={text}

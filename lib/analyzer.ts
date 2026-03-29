@@ -6,7 +6,7 @@
  * See LICENSE file for details
  */
 
-const STOP_WORDS = new Set([
+export const DEFAULT_STOP_WORDS = [
   'a', 'an', 'and', 'are', 'as', 'at', 'be', 'by', 'for', 'from', 'has', 'he',
   'in', 'is', 'it', 'its', 'of', 'on', 'that', 'the', 'to', 'was', 'will',
   'with', 'this', 'but', 'they', 'have', 'had', 'what', 'when', 'where', 'who',
@@ -18,7 +18,12 @@ const STOP_WORDS = new Set([
   'again', 'further', 'then', 'once', 'here', 'there', 'one', 'two', 'three',
   'would', 'could', 'also', 'much', 'many', 'may', 'do', 'does', 'did', 'been',
   'being', 'i', 'you', 'we', 'our', 'your'
-]);
+];
+
+export interface AnalyzeOptions {
+  filterStopWords?: boolean;
+  customStopWords?: string[];
+}
 
 export interface WordAnalysis {
   word: string;
@@ -42,15 +47,18 @@ export interface AnalysisResult {
   };
 }
 
-export function analyzeText(text: string): AnalysisResult {
+export function analyzeText(text: string, options?: AnalyzeOptions): AnalysisResult {
+  const filterStopWords = options?.filterStopWords ?? true;
+  const stopWordsSet = new Set(options?.customStopWords ?? DEFAULT_STOP_WORDS);
+
   const charsWithSpaces = text.length;
   const textLower = text.toLowerCase();
   const words = textLower.match(/\b[a-z]+\b/g) || [];
   const totalAllWords = words.length;
 
-  const filteredWords = words.filter(
-    word => !STOP_WORDS.has(word) && word.length > 2
-  );
+  const filteredWords = filterStopWords
+    ? words.filter(word => !stopWordsSet.has(word) && word.length > 2)
+    : words.filter(word => word.length > 2);
 
   const totalFilteredWords = filteredWords.length;
   const wordCounts = new Map<string, number>();
