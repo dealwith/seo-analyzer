@@ -287,7 +287,7 @@ export default function Home() {
           borderRadius: '3px',
           display: 'inline-block',
           flexShrink: 0,
-          border: `2px solid ${color}`,
+          border: '2px solid #2563eb',
           background: 'transparent',
         }}
       />

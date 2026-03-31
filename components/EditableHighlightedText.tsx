@@ -38,7 +38,7 @@ export default function EditableHighlightedText({
     const cls = `highlight${selected ? ' selected' : ''}${!colorful ? ' highlight-outline' : ''}`;
     const style = colorful
       ? `background-color: ${bg}; cursor: pointer;`
-      : `background-color: transparent; border: 1.5px solid ${bg}; cursor: pointer;`;
+      : `background-color: transparent; border: 1.5px solid #2563eb; cursor: pointer;`;
     return `<mark class="${cls}" style="${style}" data-word="${escapeHtml(key)}" title="Click to highlight all '${escapeHtml(key)}'">${escapeHtml(original)}</mark>`;
   }, [escapeHtml, colorful]);
 
