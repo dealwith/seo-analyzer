@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
-import { AnalysisResult, DEFAULT_STOP_WORDS } from '@/lib/analyzer';
+import { AnalysisResult, WordAnalysis, DEFAULT_STOP_WORDS } from '@/lib/analyzer';
 import EditableHighlightedText from '@/components/EditableHighlightedText';
 import ResizablePanels from '@/components/ResizablePanels';
 import ServiceWordsPanel from '@/components/ServiceWordsPanel';
@@ -25,6 +25,15 @@ import {
 
 const MAX_TABS = 3;
 
+type HighlightMode = 'off' | 'words' | 'two-word' | 'three-word';
+
+const HIGHLIGHT_OPTIONS: Array<{ value: HighlightMode; label: string }> = [
+  { value: 'words', label: 'Words' },
+  { value: 'two-word', label: '2-word' },
+  { value: 'three-word', label: '3-word' },
+  { value: 'off', label: 'Off' },
+];
+
 function createTab(index: number): TabData {
   return {
     id: `tab-${Date.now()}-${index}`,
@@ -43,9 +52,9 @@ export default function Home() {
   const [panelWidth, setPanelWidth] = useState<number | undefined>(undefined);
   const [filterStopWords, setFilterStopWords] = useState(true);
   const [customStopWords, setCustomStopWords] = useState<string[]>([...DEFAULT_STOP_WORDS]);
+  const [highlightMode, setHighlightMode] = useState<HighlightMode>('words');
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Load saved state on mount
   useEffect(() => {
     setMounted(true);
     const savedPanelWidth = loadPanelWidth();
@@ -66,7 +75,6 @@ export default function Home() {
         : savedTabs[0].id
       );
     } else {
-      // Migrate from old single-text storage
       const oldText = loadText();
       const oldAnalysis = loadAnalysis();
       const initialTab = createTab(1);
@@ -77,7 +85,6 @@ export default function Home() {
     }
   }, []);
 
-  // Debounced save of tabs
   const debouncedSaveTabs = useCallback((tabsToSave: TabData[]) => {
     if (!mounted) return;
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
@@ -86,13 +93,11 @@ export default function Home() {
     }, 3000);
   }, [mounted]);
 
-  // Save tabs when they change (debounced)
   useEffect(() => {
     if (!mounted) return;
     debouncedSaveTabs(tabs);
   }, [tabs, debouncedSaveTabs, mounted]);
 
-  // Save active tab immediately
   useEffect(() => {
     if (mounted && activeTabId) {
       saveActiveTab(activeTabId);
@@ -117,19 +122,41 @@ export default function Home() {
     updateActiveTab({ analysis: newAnalysis });
   }, [updateActiveTab]);
 
-  const colorMap = useMemo(() => {
-    if (!analysis) return new Map<string, string>();
+  const { highlightItems, colorMap } = useMemo(() => {
+    if (!analysis || highlightMode === 'off') {
+      return { highlightItems: [] as WordAnalysis[], colorMap: new Map<string, string>() };
+    }
 
-    const top20Words = analysis.wordAnalysis.slice(0, 20);
-    const colors = generateDistinctColors(20);
+    let items: WordAnalysis[];
+
+    switch (highlightMode) {
+      case 'words':
+        items = analysis.wordAnalysis.slice(0, 20);
+        break;
+      case 'two-word':
+        items = analysis.twoWordCombinations.map(c => ({
+          word: c.phrase,
+          count: c.count,
+          percentage: 0,
+        }));
+        break;
+      case 'three-word':
+        items = analysis.threeWordCombinations.map(c => ({
+          word: c.phrase,
+          count: c.count,
+          percentage: 0,
+        }));
+        break;
+    }
+
+    const colors = generateDistinctColors(items.length);
     const map = new Map<string, string>();
-
-    top20Words.forEach((item, index) => {
+    items.forEach((item, index) => {
       map.set(item.word, colors[index]);
     });
 
-    return map;
-  }, [analysis]);
+    return { highlightItems: items, colorMap: map };
+  }, [analysis, highlightMode]);
 
   const handleAnalyze = async () => {
     if (!text.trim()) return;
@@ -151,7 +178,6 @@ export default function Home() {
 
       const result = await response.json();
       setAnalysis(result);
-      // Force immediate save after analysis
       if (mounted) {
         const updatedTabs = tabs.map(tab =>
           tab.id === activeTabId ? { ...tab, analysis: result } : tab
@@ -198,6 +224,11 @@ export default function Home() {
     }
   };
 
+  const handleHighlightModeChange = (mode: HighlightMode) => {
+    setHighlightMode(mode);
+    setSelectedWord(null);
+  };
+
   const handleAddTab = () => {
     if (tabs.length >= MAX_TABS) return;
     const newTab = createTab(tabs.length + 1);
@@ -226,6 +257,9 @@ export default function Home() {
     setActiveTabId(tabId);
     setSelectedWord(null);
   };
+
+  const editorHighlightMode: 'words' | 'phrases' =
+    highlightMode === 'two-word' || highlightMode === 'three-word' ? 'phrases' : 'words';
 
   return (
     <div className="container">
@@ -287,12 +321,29 @@ export default function Home() {
               customStopWords={customStopWords}
               onCustomStopWordsChange={handleCustomStopWordsChange}
             />
+            {analysis && (
+              <div className="highlight-mode">
+                <span className="highlight-mode-label">Highlight:</span>
+                <div className="highlight-mode-buttons">
+                  {HIGHLIGHT_OPTIONS.map((opt) => (
+                    <button
+                      key={opt.value}
+                      className={`highlight-mode-btn ${highlightMode === opt.value ? 'active' : ''}`}
+                      onClick={() => handleHighlightModeChange(opt.value)}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
             {analysis ? (
               <EditableHighlightedText
                 text={text}
-                topWords={analysis.wordAnalysis.slice(0, 20)}
+                topWords={highlightItems}
                 colorMap={colorMap}
                 selectedWord={selectedWord}
+                highlightMode={editorHighlightMode}
                 onWordClick={handleWordClick}
                 onTextChange={setText}
               />
@@ -361,24 +412,27 @@ export default function Home() {
                       {analysis.wordAnalysis.slice(0, 20).map((item, index) => (
                         <tr
                           key={item.word}
-                          className={`keyword-row ${selectedWord === item.word ? 'selected' : ''}`}
-                          onClick={() => handleRowClick(item.word)}
-                          style={{ cursor: 'pointer' }}
+                          className={`keyword-row ${highlightMode === 'words' && selectedWord === item.word ? 'selected' : ''}`}
+                          onClick={() => highlightMode === 'words' ? handleRowClick(item.word) : undefined}
+                          style={{ cursor: highlightMode === 'words' ? 'pointer' : 'default' }}
                         >
                           <td>{index + 1}</td>
                           <td>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                              <span
-                                className="color-indicator"
-                                style={{
-                                  backgroundColor: colorMap.get(item.word),
-                                  width: '20px',
-                                  height: '20px',
-                                  borderRadius: '4px',
-                                  display: 'inline-block',
-                                  border: '1px solid #ddd',
-                                }}
-                              />
+                              {highlightMode === 'words' && (
+                                <span
+                                  className="color-indicator"
+                                  style={{
+                                    backgroundColor: colorMap.get(item.word),
+                                    width: '16px',
+                                    height: '16px',
+                                    borderRadius: '3px',
+                                    display: 'inline-block',
+                                    flexShrink: 0,
+                                    border: '1px solid rgba(0,0,0,0.1)',
+                                  }}
+                                />
+                              )}
                               {item.word}
                             </div>
                           </td>
@@ -404,9 +458,32 @@ export default function Home() {
                     </thead>
                     <tbody>
                       {analysis.twoWordCombinations.map((item, index) => (
-                        <tr key={item.phrase}>
+                        <tr
+                          key={item.phrase}
+                          className={`keyword-row ${highlightMode === 'two-word' && selectedWord === item.phrase ? 'selected' : ''}`}
+                          onClick={() => highlightMode === 'two-word' ? handleRowClick(item.phrase) : undefined}
+                          style={{ cursor: highlightMode === 'two-word' ? 'pointer' : 'default' }}
+                        >
                           <td>{index + 1}</td>
-                          <td>{item.phrase}</td>
+                          <td>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                              {highlightMode === 'two-word' && (
+                                <span
+                                  className="color-indicator"
+                                  style={{
+                                    backgroundColor: colorMap.get(item.phrase),
+                                    width: '16px',
+                                    height: '16px',
+                                    borderRadius: '3px',
+                                    display: 'inline-block',
+                                    flexShrink: 0,
+                                    border: '1px solid rgba(0,0,0,0.1)',
+                                  }}
+                                />
+                              )}
+                              {item.phrase}
+                            </div>
+                          </td>
                           <td>{item.count}</td>
                         </tr>
                       ))}
@@ -428,9 +505,32 @@ export default function Home() {
                     </thead>
                     <tbody>
                       {analysis.threeWordCombinations.map((item, index) => (
-                        <tr key={item.phrase}>
+                        <tr
+                          key={item.phrase}
+                          className={`keyword-row ${highlightMode === 'three-word' && selectedWord === item.phrase ? 'selected' : ''}`}
+                          onClick={() => highlightMode === 'three-word' ? handleRowClick(item.phrase) : undefined}
+                          style={{ cursor: highlightMode === 'three-word' ? 'pointer' : 'default' }}
+                        >
                           <td>{index + 1}</td>
-                          <td>{item.phrase}</td>
+                          <td>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                              {highlightMode === 'three-word' && (
+                                <span
+                                  className="color-indicator"
+                                  style={{
+                                    backgroundColor: colorMap.get(item.phrase),
+                                    width: '16px',
+                                    height: '16px',
+                                    borderRadius: '3px',
+                                    display: 'inline-block',
+                                    flexShrink: 0,
+                                    border: '1px solid rgba(0,0,0,0.1)',
+                                  }}
+                                />
+                              )}
+                              {item.phrase}
+                            </div>
+                          </td>
                           <td>{item.count}</td>
                         </tr>
                       ))}

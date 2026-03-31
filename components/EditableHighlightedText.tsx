@@ -6,6 +6,7 @@ interface EditableHighlightedTextProps {
   topWords: WordAnalysis[];
   colorMap: Map<string, string>;
   selectedWord: string | null;
+  highlightMode: 'words' | 'phrases';
   onWordClick: (word: string) => void;
   onTextChange: (text: string) => void;
 }
@@ -15,6 +16,7 @@ export default function EditableHighlightedText({
   topWords,
   colorMap,
   selectedWord,
+  highlightMode,
   onWordClick,
   onTextChange,
 }: EditableHighlightedTextProps) {
@@ -30,46 +32,101 @@ export default function EditableHighlightedText({
       .replace(/'/g, '&#039;');
   }, []);
 
-  const renderHighlightedHTML = useCallback((): string => {
-    const regex = /\b[a-z]+\b/gi;
+  const wrapMark = useCallback((original: string, key: string, bg: string, selected: boolean): string => {
+    const cls = `highlight${selected ? ' selected' : ''}`;
+    return `<mark class="${cls}" style="background-color: ${bg}; cursor: pointer;" data-word="${escapeHtml(key)}" title="Click to highlight all '${escapeHtml(key)}'">${escapeHtml(original)}</mark>`;
+  }, [escapeHtml]);
+
+  const renderWordHighlightedHTML = useCallback((): string => {
+    const regexCopy = /\b[a-z]+\b/gi;
     const parts: string[] = [];
     let lastIndex = 0;
     let match;
 
-    const textCopy = text;
-    const regexCopy = new RegExp(regex.source, regex.flags);
     const wordSet = new Set(topWords.map(w => w.word));
 
-    while ((match = regexCopy.exec(textCopy)) !== null) {
+    while ((match = regexCopy.exec(text)) !== null) {
       const word = match[0].toLowerCase();
       const matchStart = match.index;
       const matchEnd = regexCopy.lastIndex;
 
       if (matchStart > lastIndex) {
-        parts.push(escapeHtml(textCopy.substring(lastIndex, matchStart)));
+        parts.push(escapeHtml(text.substring(lastIndex, matchStart)));
       }
 
       if (wordSet.has(word)) {
-        const backgroundColor = colorMap.get(word) || 'transparent';
-        const isSelected = selectedWord === word;
-        const className = `highlight ${isSelected ? 'selected' : ''}`;
-
-        parts.push(
-          `<mark class="${className}" style="background-color: ${backgroundColor}; cursor: pointer;" data-word="${word}" title="Click to highlight all '${word}'">${escapeHtml(textCopy.substring(matchStart, matchEnd))}</mark>`
-        );
+        const bg = colorMap.get(word) || 'transparent';
+        parts.push(wrapMark(text.substring(matchStart, matchEnd), word, bg, selectedWord === word));
       } else {
-        parts.push(escapeHtml(textCopy.substring(matchStart, matchEnd)));
+        parts.push(escapeHtml(text.substring(matchStart, matchEnd)));
       }
 
       lastIndex = matchEnd;
     }
 
-    if (lastIndex < textCopy.length) {
-      parts.push(escapeHtml(textCopy.substring(lastIndex)));
+    if (lastIndex < text.length) {
+      parts.push(escapeHtml(text.substring(lastIndex)));
     }
 
     return parts.join('');
-  }, [text, topWords, colorMap, selectedWord, escapeHtml]);
+  }, [text, topWords, colorMap, selectedWord, escapeHtml, wrapMark]);
+
+  const renderPhraseHighlightedHTML = useCallback((): string => {
+    if (topWords.length === 0) return escapeHtml(text);
+
+    const lowerText = text.toLowerCase();
+    const occurrences: Array<{ start: number; end: number; phrase: string }> = [];
+
+    for (const item of topWords) {
+      const lowerPhrase = item.word.toLowerCase();
+      let searchStart = 0;
+      while (searchStart <= lowerText.length - lowerPhrase.length) {
+        const pos = lowerText.indexOf(lowerPhrase, searchStart);
+        if (pos === -1) break;
+
+        const beforeOk = pos === 0 || !/[a-z]/i.test(text[pos - 1]);
+        const afterEnd = pos + lowerPhrase.length;
+        const afterOk = afterEnd >= text.length || !/[a-z]/i.test(text[afterEnd]);
+
+        if (beforeOk && afterOk) {
+          occurrences.push({ start: pos, end: afterEnd, phrase: lowerPhrase });
+        }
+        searchStart = pos + 1;
+      }
+    }
+
+    occurrences.sort((a, b) => a.start - b.start || (b.end - b.start) - (a.end - a.start));
+
+    const filtered: typeof occurrences = [];
+    let lastEnd = 0;
+    for (const occ of occurrences) {
+      if (occ.start >= lastEnd) {
+        filtered.push(occ);
+        lastEnd = occ.end;
+      }
+    }
+
+    const parts: string[] = [];
+    let cursor = 0;
+    for (const occ of filtered) {
+      if (occ.start > cursor) {
+        parts.push(escapeHtml(text.substring(cursor, occ.start)));
+      }
+      const bg = colorMap.get(occ.phrase) || 'transparent';
+      parts.push(wrapMark(text.substring(occ.start, occ.end), occ.phrase, bg, selectedWord === occ.phrase));
+      cursor = occ.end;
+    }
+    if (cursor < text.length) {
+      parts.push(escapeHtml(text.substring(cursor)));
+    }
+
+    return parts.join('');
+  }, [text, topWords, colorMap, selectedWord, escapeHtml, wrapMark]);
+
+  const renderHighlightedHTML = useCallback((): string => {
+    if (topWords.length === 0) return escapeHtml(text);
+    return highlightMode === 'phrases' ? renderPhraseHighlightedHTML() : renderWordHighlightedHTML();
+  }, [highlightMode, topWords, text, escapeHtml, renderWordHighlightedHTML, renderPhraseHighlightedHTML]);
 
   useEffect(() => {
     if (editableRef.current && !isEditing) {

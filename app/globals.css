@@ -576,6 +576,56 @@ tbody tr:last-child td {
   margin: 0.25rem auto 0;
 }
 
+/* Highlight Mode Selector */
+.highlight-mode {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.highlight-mode-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.highlight-mode-buttons {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.highlight-mode-btn {
+  padding: 0.3rem 0.7rem;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: var(--surface);
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  border-right: 1px solid var(--border);
+}
+
+.highlight-mode-btn:last-child {
+  border-right: none;
+}
+
+.highlight-mode-btn:hover:not(.active) {
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+.highlight-mode-btn.active {
+  background: var(--primary);
+  color: white;
+  font-weight: 600;
+}
+
 /* Service Words Panel */
 .service-words-panel {
   display: flex;
