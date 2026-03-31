@@ -80,22 +80,18 @@ export default function ResizablePanels({
         flex: 1,
         gap: 0,
         position: 'relative',
-        padding: '1rem',
       }}
     >
-      {/* Left panel — DaisyUI card */}
       <div
-        className="left-panel tw-bg-base-100 tw-rounded-lg tw-shadow-sm tw-p-6 tw-overflow-y-auto"
+        className="left-panel"
         style={{
           flex: `0 0 ${leftWidth}%`,
           width: `${leftWidth}%`,
-          height: 'calc(100vh - 150px)',
         }}
       >
         {leftPanel}
       </div>
 
-      {/* Drag handle */}
       <div
         className="resizer"
         onMouseDown={handleMouseDown}
@@ -123,13 +119,11 @@ export default function ResizablePanels({
         />
       </div>
 
-      {/* Right panel — DaisyUI card */}
       <div
-        className="right-panel tw-bg-base-100 tw-rounded-lg tw-shadow-sm tw-p-6 tw-overflow-y-auto"
+        className="right-panel"
         style={{
           flex: 1,
           width: `${100 - leftWidth}%`,
-          height: 'calc(100vh - 150px)',
         }}
       >
         {rightPanel}

@@ -123,21 +123,14 @@ export default function EditableHighlightedText({
       onBlur={handleBlur}
       onCopy={handleCopy}
       style={{
-        flex: 1,
         minHeight: '400px',
-        padding: '1rem',
-        border: '2px solid #e0e0e0',
-        borderRadius: '6px',
-        fontFamily: 'inherit',
-        fontSize: '0.95rem',
-        lineHeight: 1.6,
-        overflowY: 'auto',
+        padding: '12px',
+        border: '1px solid #ddd',
+        borderRadius: '4px',
         whiteSpace: 'pre-wrap',
         wordWrap: 'break-word',
         outline: 'none',
         backgroundColor: '#fff',
-        color: '#333',
-        transition: 'border-color 0.2s',
       }}
     />
   );

@@ -51,21 +51,21 @@ export default function ServiceWordsPanel({
   };
 
   return (
-    <div className="tw-flex tw-flex-col tw-gap-1 tw-py-1">
-      <div className="tw-flex tw-items-center tw-gap-2">
-        <label className="tw-flex tw-items-center tw-gap-2 tw-cursor-pointer tw-select-none">
+    <div className="service-words-panel">
+      <div className="service-words-row">
+        <label className="service-words-toggle">
           <input
             type="checkbox"
             className={cn('dui-toggle', 'dui-toggle-sm', 'dui-toggle-primary')}
             checked={filterEnabled}
             onChange={(e) => onFilterToggle(e.target.checked)}
           />
-          <span className="tw-text-sm tw-font-medium tw-text-base-content">Filter service words</span>
+          <span className="service-words-label">Filter service words</span>
         </label>
 
         <div className="dui-tooltip dui-tooltip-left" data-tip="Service words (stop words) like 'the', 'is', 'at' are common words filtered out during analysis. Click the edit button to customize the list.">
           <button
-            className="dui-btn dui-btn-ghost dui-btn-xs dui-btn-circle tw-text-base-content/50"
+            className="service-words-info-btn"
             aria-label="Information about service words"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -78,7 +78,7 @@ export default function ServiceWordsPanel({
 
         {filterEnabled && (
           <button
-            className="dui-btn dui-btn-outline dui-btn-primary dui-btn-xs tw-gap-1"
+            className="service-words-edit-btn"
             onClick={() => setIsModalOpen(true)}
             title="Edit service words list"
           >
@@ -92,40 +92,40 @@ export default function ServiceWordsPanel({
       </div>
 
       {filterEnabled && (
-        <div className="tw-text-xs tw-text-base-content/50 tw-pl-11">
+        <div className="service-words-count">
           {customStopWords.length} words in filter list
         </div>
       )}
 
       <dialog ref={modalRef} className={cn('dui-modal')} onClose={handleClose}>
-        <div className="dui-modal-box tw-max-w-lg">
-          <h3 className="tw-text-xl tw-font-semibold tw-text-base-content tw-mb-1">Edit Service Words</h3>
-          <p className="tw-text-sm tw-text-base-content/60 tw-mb-4">
+        <div className="dui-modal-box service-words-modal">
+          <h3 className="service-words-modal-title">Edit Service Words</h3>
+          <p className="service-words-modal-desc">
             Add or remove words separated by commas or new lines. These words will be excluded from the analysis.
           </p>
           <textarea
-            className="dui-textarea dui-textarea-bordered tw-w-full tw-text-sm tw-leading-relaxed"
+            className="service-words-textarea"
             value={editText}
             onChange={(e) => setEditText(e.target.value)}
             rows={10}
             placeholder="Enter words separated by commas or new lines..."
           />
-          <div className="tw-flex tw-items-center tw-justify-between tw-mt-4 tw-gap-2">
+          <div className="service-words-modal-actions">
             <button
-              className="dui-btn dui-btn-outline dui-btn-error dui-btn-sm"
+              className="service-words-reset-btn"
               onClick={handleReset}
             >
               Reset to defaults
             </button>
-            <div className="tw-flex tw-gap-2">
+            <div className="service-words-modal-right">
               <button
-                className="dui-btn dui-btn-ghost dui-btn-sm"
+                className="service-words-cancel-btn"
                 onClick={handleClose}
               >
                 Cancel
               </button>
               <button
-                className="dui-btn dui-btn-primary dui-btn-sm"
+                className="service-words-save-btn"
                 onClick={handleSave}
               >
                 Save

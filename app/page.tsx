@@ -228,40 +228,31 @@ export default function Home() {
   };
 
   return (
-    <div className="tw-min-h-screen tw-flex tw-flex-col tw-bg-base-200">
-
-      {/* Header — DaisyUI navbar */}
-      <div className="dui-navbar tw-bg-neutral tw-text-neutral-content tw-shadow-lg tw-py-5">
-        <div className="tw-flex tw-items-center tw-justify-center tw-gap-6 tw-w-full tw-max-w-6xl tw-mx-auto tw-px-4 tw-flex-col sm:tw-flex-row tw-text-center sm:tw-text-left">
-          <Logo size={56} className="tw-flex-shrink-0 tw-drop-shadow-md" />
-          <div className="tw-flex tw-flex-col tw-gap-1">
-            <h1 className="tw-text-3xl tw-font-bold tw-leading-tight">SEO Keyword Analyzer</h1>
-            <p className="tw-text-sm tw-opacity-80 tw-leading-snug">Analyze your text to identify keyword density and combinations</p>
+    <div className="container">
+      <header>
+        <div className="header-content">
+          <Logo size={56} className="logo" />
+          <div className="header-text">
+            <h1>SEO Keyword Analyzer</h1>
+            <p>Analyze your text to identify keyword density and combinations</p>
           </div>
         </div>
-      </div>
+      </header>
 
-      {/* Tabs bar */}
-      <div className="tw-bg-neutral/80 tw-px-4 tw-pt-2 tw-flex tw-items-end" style={{ backgroundColor: '#34495e' }}>
-        <div className="tw-flex tw-gap-[2px] tw-items-end tw-overflow-x-auto">
+      <div className="tabs-bar">
+        <div className="tabs-list">
           {tabs.map((tab) => (
             <button
               key={tab.id}
-              className={`tw-flex tw-items-center tw-gap-2 tw-px-4 tw-py-2 tw-rounded-t tw-text-sm tw-font-medium tw-cursor-pointer tw-transition-colors tw-whitespace-nowrap tw-max-w-[180px] tw-border-0 ${
-                tab.id === activeTabId
-                  ? 'tw-bg-base-200 tw-text-neutral tw-font-semibold'
-                  : 'tw-bg-neutral tw-text-neutral-content/60 hover:tw-bg-neutral-focus hover:tw-text-neutral-content'
-              }`}
+              className={`tab-button ${tab.id === activeTabId ? 'active' : ''}`}
               onClick={() => handleSwitchTab(tab.id)}
               title={tab.label}
             >
-              <span className="tw-overflow-hidden tw-text-ellipsis">{tab.label}</span>
-              {tab.analysis && (
-                <span className={`dui-badge dui-badge-xs ${tab.id === activeTabId ? 'dui-badge-success' : 'dui-badge-info'}`} />
-              )}
+              <span className="tab-label">{tab.label}</span>
+              {tab.analysis && <span className="tab-dot" />}
               {tabs.length > 1 && (
                 <span
-                  className="tw-text-lg tw-leading-none tw-opacity-50 hover:tw-opacity-100 tw-flex-shrink-0 tw-px-[2px] tw-transition-opacity"
+                  className="tab-close"
                   onClick={(e) => handleCloseTab(tab.id, e)}
                   title="Close tab"
                 >
@@ -272,8 +263,7 @@ export default function Home() {
           ))}
           {tabs.length < MAX_TABS && (
             <button
-              className="tw-flex tw-items-center tw-px-3 tw-py-2 tw-bg-transparent tw-text-neutral-content/60 tw-border tw-border-dashed tw-border-neutral-content/30 tw-rounded-t tw-text-base tw-font-semibold tw-cursor-pointer hover:tw-text-neutral-content tw-transition-colors"
-              style={{ borderColor: 'rgba(149,165,166,0.5)' }}
+              className="tab-add"
               onClick={handleAddTab}
               title="Open new tab (max 3)"
             >
@@ -283,13 +273,12 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Main content */}
       <ResizablePanels
         savedWidth={panelWidth}
         onWidthChange={handlePanelWidthChange}
         leftPanel={
-          <div className="tw-flex tw-flex-col tw-gap-4 tw-h-full">
-            <label htmlFor="text-input" className="tw-text-lg tw-font-semibold tw-text-base-content">
+          <div className="input-section">
+            <label htmlFor="text-input">
               <strong>Enter Your Text:</strong>
             </label>
             <ServiceWordsPanel
@@ -310,25 +299,24 @@ export default function Home() {
             ) : (
               <textarea
                 id="text-input"
-                className="dui-textarea dui-textarea-bordered tw-flex-1 tw-resize-y tw-text-[0.95rem] tw-font-[inherit] tw-leading-relaxed"
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 placeholder="Paste your text here for SEO analysis..."
                 rows={20}
               />
             )}
-            <div className="tw-flex tw-gap-2 tw-flex-wrap">
+            <div className="button-group">
               <button
                 onClick={handleAnalyze}
                 disabled={loading || !text.trim()}
-                className="dui-btn dui-btn-primary tw-flex-1 tw-min-w-[120px]"
+                className="analyze-btn"
               >
                 {loading ? 'Analyzing...' : 'Analyze Text'}
               </button>
               {text && (
                 <button
                   onClick={handleClear}
-                  className="dui-btn dui-btn-error tw-flex-1 tw-min-w-[120px]"
+                  className="clear-btn"
                 >
                   Clear All
                 </button>
@@ -338,39 +326,32 @@ export default function Home() {
         }
         rightPanel={
           analysis ? (
-            <div className="tw-flex tw-flex-col tw-gap-8">
-
-              {/* Statistics — DaisyUI stats */}
-              <div>
-                <h2 className="tw-text-2xl tw-font-bold tw-text-base-content tw-mb-4 tw-pb-2 tw-border-b-2 tw-border-primary">
-                  Statistics
-                </h2>
-                <div className="dui-stats tw-shadow tw-w-full">
-                  <div className="dui-stat tw-place-items-center">
-                    <div className="dui-stat-title">Characters</div>
-                    <div className="dui-stat-value tw-text-primary">{analysis.stats.charsWithSpaces}</div>
+            <div className="analysis-results">
+              <div className="stats-section">
+                <h2>Statistics</h2>
+                <div className="stats-grid">
+                  <div className="stat-card">
+                    <div className="stat-value">{analysis.stats.charsWithSpaces}</div>
+                    <div className="stat-label">Characters</div>
                   </div>
-                  <div className="dui-stat tw-place-items-center">
-                    <div className="dui-stat-title">Total Words</div>
-                    <div className="dui-stat-value tw-text-primary">{analysis.stats.totalWords}</div>
+                  <div className="stat-card">
+                    <div className="stat-value">{analysis.stats.totalWords}</div>
+                    <div className="stat-label">Total Words</div>
                   </div>
-                  <div className="dui-stat tw-place-items-center">
-                    <div className="dui-stat-title">Meaningful Words</div>
-                    <div className="dui-stat-value tw-text-primary">{analysis.stats.totalFilteredWords}</div>
+                  <div className="stat-card">
+                    <div className="stat-value">{analysis.stats.totalFilteredWords}</div>
+                    <div className="stat-label">Meaningful Words</div>
                   </div>
                 </div>
               </div>
 
-              {/* Top 20 Keywords — DaisyUI table */}
-              <div>
-                <h2 className="tw-text-2xl tw-font-bold tw-text-base-content tw-mb-4 tw-pb-2 tw-border-b-2 tw-border-primary">
-                  Top 20 Keywords
-                </h2>
-                <div className="tw-overflow-x-auto">
-                  <table className="dui-table dui-table-sm">
+              <div className="section">
+                <h2>Top 20 Keywords</h2>
+                <div className="table-container">
+                  <table>
                     <thead>
                       <tr>
-                        <th className="tw-w-12 tw-text-center">#</th>
+                        <th>#</th>
                         <th>Word</th>
                         <th>Count</th>
                         <th>Percentage</th>
@@ -380,22 +361,22 @@ export default function Home() {
                       {analysis.wordAnalysis.slice(0, 20).map((item, index) => (
                         <tr
                           key={item.word}
-                          className={`tw-cursor-pointer tw-transition-colors ${
-                            selectedWord === item.word
-                              ? 'tw-bg-primary/10'
-                              : 'hover:tw-bg-base-200'
-                          }`}
+                          className={`keyword-row ${selectedWord === item.word ? 'selected' : ''}`}
                           onClick={() => handleRowClick(item.word)}
+                          style={{ cursor: 'pointer' }}
                         >
-                          <td className="tw-text-center tw-text-base-content/50 tw-font-medium">{index + 1}</td>
+                          <td>{index + 1}</td>
                           <td>
-                            <div className="tw-flex tw-items-center tw-gap-2">
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                               <span
-                                className="tw-inline-block tw-rounded tw-border tw-border-base-300 tw-flex-shrink-0"
+                                className="color-indicator"
                                 style={{
                                   backgroundColor: colorMap.get(item.word),
                                   width: '20px',
                                   height: '20px',
+                                  borderRadius: '4px',
+                                  display: 'inline-block',
+                                  border: '1px solid #ddd',
                                 }}
                               />
                               {item.word}
@@ -410,24 +391,21 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* 2-word combinations — DaisyUI table */}
-              <div>
-                <h2 className="tw-text-2xl tw-font-bold tw-text-base-content tw-mb-4 tw-pb-2 tw-border-b-2 tw-border-primary">
-                  Top 10 Keyword Combinations (2-word phrases)
-                </h2>
-                <div className="tw-overflow-x-auto">
-                  <table className="dui-table dui-table-sm">
+              <div className="section">
+                <h2>Top 10 Keyword Combinations (2-word phrases)</h2>
+                <div className="table-container">
+                  <table>
                     <thead>
                       <tr>
-                        <th className="tw-w-12 tw-text-center">#</th>
+                        <th>#</th>
                         <th>Phrase</th>
                         <th>Count</th>
                       </tr>
                     </thead>
                     <tbody>
                       {analysis.twoWordCombinations.map((item, index) => (
-                        <tr key={item.phrase} className="hover:tw-bg-base-200">
-                          <td className="tw-text-center tw-text-base-content/50 tw-font-medium">{index + 1}</td>
+                        <tr key={item.phrase}>
+                          <td>{index + 1}</td>
                           <td>{item.phrase}</td>
                           <td>{item.count}</td>
                         </tr>
@@ -437,24 +415,21 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* 3-word combinations — DaisyUI table */}
-              <div>
-                <h2 className="tw-text-2xl tw-font-bold tw-text-base-content tw-mb-4 tw-pb-2 tw-border-b-2 tw-border-primary">
-                  Top 10 Keyword Combinations (3-word phrases)
-                </h2>
-                <div className="tw-overflow-x-auto">
-                  <table className="dui-table dui-table-sm">
+              <div className="section">
+                <h2>Top 10 Keyword Combinations (3-word phrases)</h2>
+                <div className="table-container">
+                  <table>
                     <thead>
                       <tr>
-                        <th className="tw-w-12 tw-text-center">#</th>
+                        <th>#</th>
                         <th>Phrase</th>
                         <th>Count</th>
                       </tr>
                     </thead>
                     <tbody>
                       {analysis.threeWordCombinations.map((item, index) => (
-                        <tr key={item.phrase} className="hover:tw-bg-base-200">
-                          <td className="tw-text-center tw-text-base-content/50 tw-font-medium">{index + 1}</td>
+                        <tr key={item.phrase}>
+                          <td>{index + 1}</td>
                           <td>{item.phrase}</td>
                           <td>{item.count}</td>
                         </tr>
@@ -463,11 +438,9 @@ export default function Home() {
                   </table>
                 </div>
               </div>
-
             </div>
           ) : (
-            /* Empty state */
-            <div className="tw-flex tw-flex-col tw-items-center tw-justify-center tw-h-full tw-text-base-content/40 tw-text-center tw-p-8">
+            <div className="empty-state">
               <svg
                 width="64"
                 height="64"
@@ -477,7 +450,6 @@ export default function Home() {
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className="tw-mb-4"
               >
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                 <polyline points="14 2 14 8 20 8" />
@@ -485,34 +457,31 @@ export default function Home() {
                 <line x1="16" y1="17" x2="8" y2="17" />
                 <polyline points="10 9 9 9 8 9" />
               </svg>
-              <p className="tw-text-lg">Enter text on the left and click &ldquo;Analyze Text&rdquo; to see results</p>
+              <p>Enter text on the left and click &ldquo;Analyze Text&rdquo; to see results</p>
             </div>
           )
         }
       />
 
-      {/* Footer */}
-      <footer className="tw-bg-neutral tw-text-neutral-content tw-py-8 tw-px-4 tw-text-center tw-mt-auto tw-border-t-4 tw-border-primary">
-        <p className="tw-text-sm tw-leading-relaxed">
+      <footer className="app-footer">
+        <p>
           SEO Keyword Analyzer © 2024 | Licensed under{' '}
           <a
             href="https://www.gnu.org/licenses/agpl-3.0.en.html"
             target="_blank"
             rel="noopener noreferrer"
-            className="dui-link dui-link-primary"
           >
             AGPL-3.0
           </a>
           {' '}or Commercial License
         </p>
-        <p className="tw-text-xs tw-opacity-80 tw-max-w-2xl tw-mx-auto tw-mt-2">
+        <p className="footer-notice">
           Open source for individuals and small businesses. Commercial license required for corporations ($1M+ revenue).{' '}
-          <a href="https://github.com/dealwith/seo-analyzer" target="_blank" rel="noopener noreferrer" className="dui-link dui-link-primary">
+          <a href="https://github.com/dealwith/seo-analyzer" target="_blank" rel="noopener noreferrer">
             View Source
           </a>
         </p>
       </footer>
-
     </div>
   );
 }
