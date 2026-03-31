@@ -53,6 +53,7 @@ export default function Home() {
   const [filterStopWords, setFilterStopWords] = useState(true);
   const [customStopWords, setCustomStopWords] = useState<string[]>([...DEFAULT_STOP_WORDS]);
   const [highlightMode, setHighlightMode] = useState<HighlightMode>('words');
+  const [colorfulHighlight, setColorfulHighlight] = useState(true);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -261,6 +262,38 @@ export default function Home() {
   const editorHighlightMode: 'words' | 'phrases' =
     highlightMode === 'two-word' || highlightMode === 'three-word' ? 'phrases' : 'words';
 
+  const renderColorSwatch = (key: string) => {
+    const color = colorMap.get(key);
+    if (colorfulHighlight) {
+      return (
+        <span
+          style={{
+            backgroundColor: color,
+            width: '16px',
+            height: '16px',
+            borderRadius: '3px',
+            display: 'inline-block',
+            flexShrink: 0,
+            border: '1px solid rgba(0,0,0,0.1)',
+          }}
+        />
+      );
+    }
+    return (
+      <span
+        style={{
+          width: '16px',
+          height: '16px',
+          borderRadius: '3px',
+          display: 'inline-block',
+          flexShrink: 0,
+          border: `2px solid ${color}`,
+          background: 'transparent',
+        }}
+      />
+    );
+  };
+
   return (
     <div className="container">
       <header>
@@ -335,6 +368,16 @@ export default function Home() {
                     </button>
                   ))}
                 </div>
+                {highlightMode !== 'off' && (
+                  <button
+                    className={`highlight-style-btn ${colorfulHighlight ? 'colorful' : 'outline'}`}
+                    onClick={() => setColorfulHighlight(prev => !prev)}
+                    title={colorfulHighlight ? 'Switch to outline style' : 'Switch to colorful style'}
+                  >
+                    <span className="highlight-style-preview" />
+                    {colorfulHighlight ? 'Color' : 'Outline'}
+                  </button>
+                )}
               </div>
             )}
             {analysis ? (
@@ -342,6 +385,7 @@ export default function Home() {
                 text={text}
                 topWords={highlightItems}
                 colorMap={colorMap}
+                colorful={colorfulHighlight}
                 selectedWord={selectedWord}
                 highlightMode={editorHighlightMode}
                 onWordClick={handleWordClick}
@@ -419,20 +463,7 @@ export default function Home() {
                           <td>{index + 1}</td>
                           <td>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                              {highlightMode === 'words' && (
-                                <span
-                                  className="color-indicator"
-                                  style={{
-                                    backgroundColor: colorMap.get(item.word),
-                                    width: '16px',
-                                    height: '16px',
-                                    borderRadius: '3px',
-                                    display: 'inline-block',
-                                    flexShrink: 0,
-                                    border: '1px solid rgba(0,0,0,0.1)',
-                                  }}
-                                />
-                              )}
+                              {highlightMode === 'words' && renderColorSwatch(item.word)}
                               {item.word}
                             </div>
                           </td>
@@ -467,20 +498,7 @@ export default function Home() {
                           <td>{index + 1}</td>
                           <td>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                              {highlightMode === 'two-word' && (
-                                <span
-                                  className="color-indicator"
-                                  style={{
-                                    backgroundColor: colorMap.get(item.phrase),
-                                    width: '16px',
-                                    height: '16px',
-                                    borderRadius: '3px',
-                                    display: 'inline-block',
-                                    flexShrink: 0,
-                                    border: '1px solid rgba(0,0,0,0.1)',
-                                  }}
-                                />
-                              )}
+                              {highlightMode === 'two-word' && renderColorSwatch(item.phrase)}
                               {item.phrase}
                             </div>
                           </td>
@@ -514,20 +532,7 @@ export default function Home() {
                           <td>{index + 1}</td>
                           <td>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                              {highlightMode === 'three-word' && (
-                                <span
-                                  className="color-indicator"
-                                  style={{
-                                    backgroundColor: colorMap.get(item.phrase),
-                                    width: '16px',
-                                    height: '16px',
-                                    borderRadius: '3px',
-                                    display: 'inline-block',
-                                    flexShrink: 0,
-                                    border: '1px solid rgba(0,0,0,0.1)',
-                                  }}
-                                />
-                              )}
+                              {highlightMode === 'three-word' && renderColorSwatch(item.phrase)}
                               {item.phrase}
                             </div>
                           </td>

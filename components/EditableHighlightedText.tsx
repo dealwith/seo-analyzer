@@ -5,6 +5,7 @@ interface EditableHighlightedTextProps {
   text: string;
   topWords: WordAnalysis[];
   colorMap: Map<string, string>;
+  colorful: boolean;
   selectedWord: string | null;
   highlightMode: 'words' | 'phrases';
   onWordClick: (word: string) => void;
@@ -15,6 +16,7 @@ export default function EditableHighlightedText({
   text,
   topWords,
   colorMap,
+  colorful,
   selectedWord,
   highlightMode,
   onWordClick,
@@ -33,9 +35,12 @@ export default function EditableHighlightedText({
   }, []);
 
   const wrapMark = useCallback((original: string, key: string, bg: string, selected: boolean): string => {
-    const cls = `highlight${selected ? ' selected' : ''}`;
-    return `<mark class="${cls}" style="background-color: ${bg}; cursor: pointer;" data-word="${escapeHtml(key)}" title="Click to highlight all '${escapeHtml(key)}'">${escapeHtml(original)}</mark>`;
-  }, [escapeHtml]);
+    const cls = `highlight${selected ? ' selected' : ''}${!colorful ? ' highlight-outline' : ''}`;
+    const style = colorful
+      ? `background-color: ${bg}; cursor: pointer;`
+      : `background-color: transparent; border: 1.5px solid ${bg}; cursor: pointer;`;
+    return `<mark class="${cls}" style="${style}" data-word="${escapeHtml(key)}" title="Click to highlight all '${escapeHtml(key)}'">${escapeHtml(original)}</mark>`;
+  }, [escapeHtml, colorful]);
 
   const renderWordHighlightedHTML = useCallback((): string => {
     const regexCopy = /\b[a-z]+\b/gi;
