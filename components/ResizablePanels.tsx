@@ -98,7 +98,7 @@ export default function ResizablePanels({
         style={{
           width: '8px',
           cursor: 'col-resize',
-          background: isDragging ? '#3498db' : '#e0e0e0',
+          background: isDragging ? '#2563eb' : '#e2e8f0',
           transition: isDragging ? 'none' : 'background 0.2s',
           position: 'relative',
           flexShrink: 0,
@@ -112,7 +112,7 @@ export default function ResizablePanels({
             transform: 'translate(-50%, -50%)',
             width: '3px',
             height: '40px',
-            background: isDragging ? 'white' : '#95a5a6',
+            background: isDragging ? 'white' : '#94a3b8',
             borderRadius: '2px',
             pointerEvents: 'none',
           }}

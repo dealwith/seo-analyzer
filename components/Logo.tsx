@@ -13,7 +13,7 @@ export default function Logo({ size = 48, className = '' }: LogoProps) {
       xmlns="http://www.w3.org/2000/svg"
       className={className}
     >
-      <rect width="64" height="64" rx="12" fill="#3498db" />
+      <rect width="64" height="64" rx="14" fill="#2563eb" />
 
       <path
         d="M18 22C18 20.8954 18.8954 20 20 20H28C29.1046 20 30 20.8954 30 22V24C30 25.1046 29.1046 26 28 26H20C18.8954 26 18 25.1046 18 24V22Z"
@@ -32,7 +32,7 @@ export default function Logo({ size = 48, className = '' }: LogoProps) {
         opacity="0.8"
       />
 
-      <circle cx="48" cy="40" r="8" fill="#e74c3c" />
+      <circle cx="48" cy="40" r="8" fill="#f97316" />
       <path
         d="M44.5 40L46.5 42L51.5 37"
         stroke="white"

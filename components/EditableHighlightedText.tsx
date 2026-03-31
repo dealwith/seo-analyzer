@@ -124,13 +124,6 @@ export default function EditableHighlightedText({
       onCopy={handleCopy}
       style={{
         minHeight: '400px',
-        padding: '12px',
-        border: '1px solid #ddd',
-        borderRadius: '4px',
-        whiteSpace: 'pre-wrap',
-        wordWrap: 'break-word',
-        outline: 'none',
-        backgroundColor: '#fff',
       }}
     />
   );
