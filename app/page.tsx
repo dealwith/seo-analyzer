@@ -6,6 +6,7 @@ import EditableHighlightedText from '@/components/EditableHighlightedText';
 import ResizablePanels from '@/components/ResizablePanels';
 import ServiceWordsPanel from '@/components/ServiceWordsPanel';
 import Logo from '@/components/Logo';
+import ThemeToggle from '@/components/ThemeToggle';
 import { generateDistinctColors } from '@/lib/colors';
 import {
   savePanelWidth,
@@ -304,6 +305,7 @@ export default function Home() {
             <p>Analyze your text to identify keyword density and combinations</p>
           </div>
         </div>
+        <ThemeToggle />
       </header>
 
       <div className="tabs-bar">
